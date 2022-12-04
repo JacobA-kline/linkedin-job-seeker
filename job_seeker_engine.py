@@ -2,6 +2,7 @@ import os
 import dotenv
 import time
 from selenium import webdriver
+from selenium.common import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -15,6 +16,7 @@ class JobSeekerEngine:
     def __init__(self):
         self.PASSWORD = os.getenv("LINKEDIN_PASS")
         self.EMAIL = os.getenv("EMAIL")
+        self.PHONE_NUMBER = os.getenv("PHONE_NUMBER")
         self.chrome_driver_path = Service("/home/jacob/Development/chromedriver_linux64/chromedriver")
         self.chrome_driver = webdriver.Chrome(service=self.chrome_driver_path)
         self.chrome_driver.minimize_window()
@@ -98,5 +100,46 @@ class JobSeekerEngine:
         easy_apply_button.click()
         time.sleep(3)
 
+    def apply_page_jobs(self):
+        """Apply to all jobs on the page """
+        counter = 1
+        apply_counter = 0
+        all_listings = self.chrome_driver.find_elements(By.CSS_SELECTOR, ".job-card-container--clickable")
+        for alist in all_listings:
+            print(f"Applying.. Job - {counter}")
+            counter += 1
+            alist.click()
+            time.sleep(2)
+
+            apply_button = self.chrome_driver.find_element(By.CSS_SELECTOR, ".jobs-s-apply button")
+            apply_button.click()
+            time.sleep(2)
+            # Cant Get this to work now :(
+            # phone = self.chrome_driver.find_element(By.CSS_SELECTOR, ".fb-single-line-text__input")
+            # print(phone.)
+            # if phone.text == "":
+            #     phone.send_keys(self.PHONE_NUMBER)
+            submit_button = self.chrome_driver.find_element(By.CSS_SELECTOR, "footer button")
+            if submit_button.get_attribute("aria-label") == "Submit application":
+                submit_button.click()
+                apply_counter += 1
+                print("Job application sent successfully")
+                time.sleep(2)
+                continue
+
+            else:
+                close_button = self.chrome_driver.find_element(By.XPATH, """/html/body/div[3]/div/div/button""")
+                close_button.click()
+                discard_button = self.chrome_driver.find_element(By.XPATH, """/html/body/div[3]/div[2]/div/div[
+                3]/button[1]""")
+                discard_button.click()
+                print("Complex application, skipped.")
+                time.sleep(2)
+                continue
+        print(f"Applied for {apply_counter} jobs.")
 
 
+
+
+
+                                                                          
